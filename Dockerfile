@@ -19,17 +19,9 @@ COPY . .
 
 RUN touch .env
 
-RUN if [ -f pnpm-lock.yaml ]; then \
-        pnpm build 2>&1 | tee /tmp/build.log || (cat /tmp/build.log && exit 1); \
-    elif [ -f bun.lockb ]; then \
-        bun run build 2>&1 | tee /tmp/build.log || (cat /tmp/build.log && exit 1); \
-    else \
-        npm run build 2>&1 | tee /tmp/build.log || (cat /tmp/build.log && exit 1); \
-    fi
-
-# RUN if [ -f pnpm-lock.yaml ]; then pnpm build; \
-#     elif [ -f bun.lockb ]; then bun run build; \
-#     else npm run build; fi
+RUN if [ -f pnpm-lock.yaml ]; then pnpm build; \
+    elif [ -f bun.lockb ]; then bun run build; \
+    else npm run build; fi
 
 # --- runtime stage ---
 FROM node:20-alpine
