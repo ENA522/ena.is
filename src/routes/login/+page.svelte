@@ -1,6 +1,7 @@
 <script>
     import { page } from '$app/state';
     import { enhance } from '$app/forms';
+    import { authClient } from '$lib/auth/auth-client';
 
     const redirectTarget = $derived.by(() => {
         const raw = page.url.searchParams.get('redirect');
@@ -17,8 +18,10 @@
 
     // Client-side OAuth
     function signInWithProvider(provider) {
-        const callbackURL = redirectTarget || '/';
-        window.location.href = `/api/auth/sign-in/social?provider=${provider}&callbackURL=${encodeURIComponent(callbackURL)}`;
+        authClient.signIn.social({
+            provider,
+            callback: redirectTarget ?? "/"
+        })
     }
 </script>
 
