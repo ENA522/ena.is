@@ -48,6 +48,9 @@ COPY package.json ./
 # Install production deps for adapter-node output (often none, but safe)
 RUN npm i --omit=dev || true
 
+# Copy Prisma schema BEFORE generating
+COPY schema.prisma ./
+
 # Generate Prisma client in runtime stage
 RUN npx prisma generate
 
