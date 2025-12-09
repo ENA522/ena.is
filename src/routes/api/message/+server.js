@@ -1,63 +1,97 @@
 // api/message/+server.js
-import { json } from '@sveltejs/kit';
+import { json } from "@sveltejs/kit";
+import { db } from "$lib/db.js";
+import { withApiLogger } from "$lib/apiLogger/withApiLogger.js";
 
-export async function GET({ url, cookies }) {
-    const messageId = url.searchParams.get('messageId');
-    const channelId = url.searchParams.get('channelId');
+/**
+ * GET /api/message?messageId=xxx&channelId=xxx
+ */
+export const GET = withApiLogger(
+    {
+        index: {
+            request: ["messageId", "channelId"],
+            response: ["status"]
+        }
+    },
+    async function GET({ url, locals, fetch }) {
+        if (!locals.user)
+            return json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!messageId) {
-        return json({ error: "Message ID is required" }, { status: 400 });
-    }
+        const messageId = url.searchParams.get('messageId');
+        const channelId = url.searchParams.get('channelId');
 
-    // Get auth token from cookies
-    const authToken = cookies.get('auth_token'); // or however you handle auth
-    if (!authToken) {
-        return json({ error: "Unauthorized" }, { status: 401 });
-    }
+        if (!messageId)
+            return json({ error: "Message ID is required" }, { status: 400 });
 
-    try {
+        // Get bound encrypted key
+        const { rows } = await db.query(`
+            SELECT ak.encrypted_key
+            FROM enabot_api_keys b
+            JOIN api_keys ak ON ak.key_hash = b.key_hash
+            WHERE ak.user_id = $1
+            LIMIT 1
+        `, [locals.user.id]);
+
+        if (!rows.length)
+            return json({ error: "No API key bound to bot" }, { status: 403 });
+
+        const encrypted = rows[0].encrypted_key.toString("base64");
+
+        // Forward to bot API
         const apiUrl = channelId 
-            ? `/message/${messageId}?channelId=${channelId}`
-            : `/message/${messageId}`;
+            ? `https://enabot-production.up.railway.app/message/${messageId}?channelId=${channelId}`
+            : `https://enabot-production.up.railway.app/message/${messageId}`;
 
-        const res = await fetch(`${process.env.BOT_API_URL}${apiUrl}`, {
+        const res = await fetch(apiUrl, {
+            method: "GET",
             headers: {
-                'Authorization': `Bearer ${authToken}`
+                "x-api-key-encrypted": encrypted
             }
         });
 
         const data = await res.json();
 
-        if (!res.ok) {
-            return json({ error: data.error || "Failed to fetch message" }, { status: res.status });
+        return json(data, { status: res.status });
+    }
+);
+
+/**
+ * POST /api/message
+ * Body: { messageId, channelId?, content?, embeds? }
+ */
+export const POST = withApiLogger(
+    {
+        index: {
+            request: ["messageId", "content", "embeds"],
+            response: ["status"]
         }
+    },
+    async function POST({ request, locals, fetch }) {
+        if (!locals.user)
+            return json({ error: "Unauthorized" }, { status: 401 });
 
-        return json(data);
+        const { messageId, channelId, content, embeds } = await request.json();
 
-    } catch (err) {
-        console.error("Fetch message error:", err);
-        return json({ error: "Internal server error" }, { status: 500 });
-    }
-}
+        if (!messageId)
+            return json({ error: "Message ID is required" }, { status: 400 });
 
-export async function POST({ request, cookies }) {
-    const { messageId, channelId, content, embeds } = await request.json();
+        if (!content && (!embeds || embeds.length === 0))
+            return json({ error: "Must provide content or embeds" }, { status: 400 });
 
-    if (!messageId) {
-        return json({ error: "Message ID is required" }, { status: 400 });
-    }
+        // Get bound encrypted key
+        const { rows } = await db.query(`
+            SELECT ak.encrypted_key
+            FROM enabot_api_keys b
+            JOIN api_keys ak ON ak.key_hash = b.key_hash
+            WHERE ak.user_id = $1
+            LIMIT 1
+        `, [locals.user.id]);
 
-    if (!content && (!embeds || embeds.length === 0)) {
-        return json({ error: "Must provide content or embeds" }, { status: 400 });
-    }
+        if (!rows.length)
+            return json({ error: "No API key bound to bot" }, { status: 403 });
 
-    // Get auth token from cookies
-    const authToken = cookies.get('auth_token');
-    if (!authToken) {
-        return json({ error: "Unauthorized" }, { status: 401 });
-    }
+        const encrypted = rows[0].encrypted_key.toString("base64");
 
-    try {
         // Convert line breaks in content
         let processedContent = content;
         if (content && typeof content === 'string') {
@@ -91,27 +125,20 @@ export async function POST({ request, cookies }) {
         if (processedContent !== undefined) payload.content = processedContent;
         if (processedEmbeds !== undefined) payload.embeds = processedEmbeds;
 
-        const apiUrl = `/message/${messageId}/edit`;
+        // Forward to bot API
+        const apiUrl = `https://enabot-production.up.railway.app/message/${messageId}/edit`;
 
-        const res = await fetch(`${process.env.BOT_API_URL}${apiUrl}`, {
-            method: 'POST',
+        const res = await fetch(apiUrl, {
+            method: "POST",
             headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json",
+                "x-api-key-encrypted": encrypted
             },
             body: JSON.stringify(payload)
         });
 
         const data = await res.json();
 
-        if (!res.ok) {
-            return json({ error: data.error || "Failed to edit message" }, { status: res.status });
-        }
-
-        return json(data);
-
-    } catch (err) {
-        console.error("Edit message error:", err);
-        return json({ error: "Internal server error" }, { status: 500 });
+        return json(data, { status: res.status });
     }
-}
+);
