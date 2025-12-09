@@ -8,6 +8,9 @@ RUN if [ -f pnpm-lock.yaml ]; then corepack enable && corepack prepare pnpm@late
     elif [ -f bun.lockb ]; then bun install --frozen-lockfile; \
     else npm ci; fi
 
+# Copy Prisma schema BEFORE generating
+COPY schema.prisma ./
+
 # Generate Prisma client
 RUN npx prisma generate
 

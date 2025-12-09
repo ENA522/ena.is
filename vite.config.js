@@ -5,8 +5,8 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
     optimizeDeps: {
-    include: ['ms']
-  },
+        include: ['ms']
+    },
 	server: {
             port: 3000 // Change this to your desired development port
         }
