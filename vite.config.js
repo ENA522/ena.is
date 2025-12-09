@@ -8,9 +8,6 @@ export default defineConfig({
 		port: 3000
 	},
 	ssr: {
-		noExternal: ['better-auth']
-	},
-	optimizeDeps: {
-		exclude: ['better-auth']
+		external: ['better-auth', 'pg', '@prisma/client']
 	}
 });
