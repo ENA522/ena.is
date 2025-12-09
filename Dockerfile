@@ -48,6 +48,9 @@ COPY package.json ./
 # Install production deps for adapter-node output (often none, but safe)
 RUN npm i --omit=dev || true
 
+# Generate Prisma client in runtime stage
+RUN npx prisma generate
+
 # Nginx + PM2 configs
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 COPY ecosystem.config.cjs /app/ecosystem.config.cjs
