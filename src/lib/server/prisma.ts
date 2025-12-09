@@ -1,16 +1,15 @@
 // $lib/server/prisma.ts
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
-import pkg from '@prisma/client';
 
-const { PrismaClient } = pkg;
+const { PrismaClient } = await import('@prisma/client');
 
 const connectionString = process.env.DATABASE_URL!;
 
 const adapter = new PrismaPg({ connectionString });
 
 const globalForPrisma = globalThis as unknown as {
-    prisma: InstanceType<typeof PrismaClient> | undefined;
+    prisma?: InstanceType<typeof PrismaClient>;
 };
 
 export const prisma =
