@@ -4,51 +4,58 @@ import { withApiLogger } from "$lib/apiLogger/withApiLogger.js"
 
 /**
  * POST /api/bot-test
- * Body: { message }
+ * Body: { channelId, message }
  */
 
-export const POST = withApiLogger({
+export const POST = withApiLogger(
+    {
         index: {
-            request: ["message"],
+            request: ["channelId", "message"],
             response: ["status"]
         }
     },
     async function POST({ request, locals, fetch }) {
 
-    if (!locals.user)
-    return json({ error: "Unauthorized" }, { status: 401 });
+        if (!locals.user)
+            return json({ error: "Unauthorized" }, { status: 401 });
 
-    const { message } = await request.json();
-    if (!message)
-    return json({ error: "Message is required" }, { status: 400 });
+        const { channelId, message } = await request.json();
 
-    // 1) Get bound encrypted key
-    const { rows } = await db.query(`
-        SELECT ak.encrypted_key
-        FROM enabot_api_keys b
-        JOIN api_keys ak ON ak.key_hash = b.key_hash
-        WHERE ak.user_id = $1
-        LIMIT 1
-        `, [locals.user.id]
-    );
+        if (!channelId)
+            return json({ error: "Channel ID is required" }, { status: 400 });
 
-    if (!rows.length)
-    return json({ error: "No API key bound to bot" }, { status: 403 });
+        if (!message)
+            return json({ error: "Message is required" }, { status: 400 });
 
-    const encrypted = rows[0].encrypted_key.toString("base64");
+        // 1) Get bound encrypted key
+        const { rows } = await db.query(`
+            SELECT ak.encrypted_key
+            FROM enabot_api_keys b
+            JOIN api_keys ak ON ak.key_hash = b.key_hash
+            WHERE ak.user_id = $1
+            LIMIT 1
+        `, [locals.user.id]);
 
-    // 2) Forward message to bot API
-    const res = await fetch("https://enabot-production.up.railway.app/test/post", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-        "x-api-key-encrypted": encrypted
-    },
-    body: JSON.stringify({ message })
-    });
+        if (!rows.length)
+            return json({ error: "No API key bound to bot" }, { status: 403 });
 
-    const data = await res.json();
+        const encrypted = rows[0].encrypted_key.toString("base64");
 
-    return json(data, { status: res.status });
-}
+        // 2) Forward message + channel ID to bot API
+        const res = await fetch("https://enabot-production.up.railway.app/test/post", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key-encrypted": encrypted
+            },
+            body: JSON.stringify({
+                channelId,
+                message
+            })
+        });
+
+        const data = await res.json();
+
+        return json(data, { status: res.status });
+    }
 )
