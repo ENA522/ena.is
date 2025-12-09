@@ -126,7 +126,7 @@ export const POST = withApiLogger(
         if (processedEmbeds !== undefined) payload.embeds = processedEmbeds;
 
         // Forward to bot API
-        const apiUrl = `https://enabot-production.up.railway.app/message/${messageId}/edit`;
+        const apiUrl = `https://enabot-production.up.railway.app/message/${channelId}/${messageId}/edit`;
 
         const res = await fetch(apiUrl, {
             method: "POST",
