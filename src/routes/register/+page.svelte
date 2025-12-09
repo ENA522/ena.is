@@ -1,6 +1,7 @@
 <script>
     import { page } from '$app/state';
     import { enhance } from '$app/forms';
+    import { authClient } from '$lib/auth/auth-client';
 
     const redirectTarget = $derived.by(() => {
         const raw = page.url.searchParams.get('redirect');
