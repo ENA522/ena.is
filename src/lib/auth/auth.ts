@@ -54,18 +54,18 @@ export const auth = betterAuth({
 
     socialProviders: {
         github: {
-            clientId: process.env.GITHUB_CLIENT_ID!,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+            clientId: process.env.GITHUB_CLIENT_ID || 'build-time-placeholder',
+            clientSecret: process.env.GITHUB_CLIENT_SECRET || 'build-time-placeholder',
             redirectURI: getRedirect('github')
         },
         google: {
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            clientId: process.env.GOOGLE_CLIENT_ID || 'build-time-placeholder',
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'build-time-placeholder',
             redirectURI: getRedirect('google')
         },
         discord: {
-            clientId: process.env.DISCORD_CLIENT_ID!,
-            clientSecret: process.env.DISCORD_CLIENT_SECRET!,
+            clientId: process.env.DISCORD_CLIENT_ID || 'build-time-placeholder',
+            clientSecret: process.env.DISCORD_CLIENT_SECRET || 'build-time-placeholder',
             redirectURI: getRedirect('discord'),
             scope: ['identify', 'guilds']
         }
