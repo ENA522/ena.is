@@ -46,18 +46,18 @@ function createAuth() {
         
         socialProviders: {
             github: {
-                clientId: process.env.GITHUB_CLIENT_ID || "build-placeholder",
-                clientSecret: process.env.GITHUB_CLIENT_SECRET || "build-placeholder",
+                clientId: process.env.GITHUB_CLIENT_ID!,
+                clientSecret: process.env.GITHUB_CLIENT_SECRET!,
                 redirectURI: "https://ena.is/api/auth/callback/github",
             },
             google: {
-                clientId: process.env.GOOGLE_CLIENT_ID || "build-placeholder",
-                clientSecret: process.env.GOOGLE_CLIENT_SECRET || "build-placeholder",
+                clientId: process.env.GOOGLE_CLIENT_ID!,
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
                 redirectURI: "https://ena.is/api/auth/callback/google",
             },
             discord: {
-                clientId: process.env.DISCORD_CLIENT_ID || "build-placeholder",
-                clientSecret: process.env.DISCORD_CLIENT_SECRET || "build-placeholder",
+                clientId: process.env.DISCORD_CLIENT_ID!,
+                clientSecret: process.env.DISCORD_CLIENT_SECRET!,
                 redirectURI: "https://ena.is/api/auth/callback/discord",
                 scopes: ["identify", "guilds"],
             },
