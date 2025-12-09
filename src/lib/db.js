@@ -23,6 +23,9 @@ export const db = {
 	getClient: () => pool.connect(),
 };
 
+// Export pool directly for better-auth
+export { pool };
+
 // Optional: Graceful shutdown
 if (typeof process !== 'undefined') {
 	process.on('SIGINT', async () => {

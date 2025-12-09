@@ -1,60 +1,46 @@
 <script>
-	let emails = $state([
-		{
-			id: '1',
-			email: 'user@example.com',
-			isPrimary: true,
-			verified: true,
-			isDefault: true
-		},
-		{
-			id: '2',
-			email: 'secondary@example.com',
-			isPrimary: false,
-			verified: true,
-			isDefault: false
-		}
-	]);
+    let { data } = $props();
 
-	let newEmail = $state('');
-	let primaryEmailId = $state('1');
-	let backupEmail = $state('all');
-	let openMenuId = $state(null);
+    import { enhance } from '$app/forms';
 
-	const toggleMenu = (emailId) => {
-		openMenuId = openMenuId === emailId ? null : emailId;
-	};
+    // ---------- DERIVED STATE (Reactive to data prop) ----------
+    // Use $derived instead of $state for values that come from data
+    let emails = $derived(data.emails ?? []);
+    let primaryEmailId = $derived(
+        emails.find(e => e.email === data.user.email)?.id ?? null
+    );
 
-	const handleAddEmail = (event) => {
-		event.preventDefault();
-		// Add logic here
-		console.log('Adding email:', newEmail);
-	};
+    // ---------- LOCAL UI STATE ----------
+    let newEmail = $state('');
+    let backupEmail = $state('all');
+    let openMenuId = $state(null);
 
-	const handleSetPrimary = (event) => {
-		event.preventDefault();
-		// Add logic here
-		console.log('Setting primary email:', primaryEmailId);
-	};
+    // ---------- UI HELPERS ----------
+    const toggleMenu = (emailId) => {
+        openMenuId = openMenuId === emailId ? null : emailId;
+    };
 
-	const handleSetBackup = (event) => {
-		event.preventDefault();
-		// Add logic here
-		console.log('Setting backup email:', backupEmail);
-	};
+    const handleManagePreferences = (emailId) => {
+        console.log("Manage:", emailId);
+        openMenuId = null;
+    };
 
-	const handleManagePreferences = (emailId) => {
-		// Add logic here
-		console.log('Manage preferences for:', emailId);
-		openMenuId = null;
-	};
+    const handleDeleteEmail = (emailId) => {
+        console.log("Delete:", emailId);
+        openMenuId = null;
+    };
 
-	const handleDeleteEmail = (emailId) => {
-		// Add logic here
-		console.log('Delete email:', emailId);
-		openMenuId = null;
-	};
+    const handleAddEmail = (event) => {
+        event.preventDefault();
+        console.log("Add:", newEmail);
+    };
+
+    const handleSetBackup = (event) => {
+        event.preventDefault();
+        console.log("Backup set:", backupEmail);
+    };
 </script>
+
 
 <svelte:head>
 	<title>Email Settings - ENA</title>
@@ -166,7 +152,8 @@
 
 		<!-- Primary Email Form -->
 		<div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 sm:p-6">
-			<form onsubmit={handleSetPrimary}>
+			<form method="POST" action="?/setPrimary"
+    use:enhance>
 				<div>
 					<label for="primary-email" class="block text-sm font-semibold text-slate-900 mb-2">
 						Primary email address
@@ -176,6 +163,7 @@
 					</p>
 					<select
 						id="primary-email"
+						name="emailId"
 						bind:value={primaryEmailId}
 						onchange={(e) => {
 							e.target.form.requestSubmit();

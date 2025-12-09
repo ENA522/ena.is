@@ -3,7 +3,7 @@ import { auth } from '$lib/auth/auth';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { building } from '$app/environment';
 
-const DEV = process.env.NODE_ENV === 'development';
+const DEV = process.env.NODE_ENV !== 'production';
 
 /** List protected *exact* paths (add as needed) */
 const PROTECTED_PATHS = ['/account'];
@@ -57,45 +57,10 @@ export async function handle({ event, resolve }) {
        DEV AUTH OVERRIDE
        ========================== */
 
-    if (DEV) {
-        event.locals.user = {
-            id: "8LATq43BBtN9ZhjrNfJmFjJiSVMbCUrZ",
-            email: "dev@ena.local",
-            name: "Local Developer",
-            emailVerified: true,
-            image: "https://avatars.githubusercontent.com/u/61644589?v=4&size=64",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            display_name: "Local Dev",
-            full_name: "Local Developer",
-            bio: "me",
-            timezone: "UTC",
-            theme: "dark",
-            language: "en",
-
-            // ✅ Give yourself admin in dev
-            role: "admin"
-        };
-
-        event.locals.session = {
-            id: "8LATq43BBtN9ZhjrNfJmFjJiSVMbCUrZ",
-            userId: "dev-user",
-            token: '4480i1pL7Y21MZHyhdn3qE2aVyP2FMdy',
-            expiresAt: new Date(Date.now() + 86400000),
-            ipAddress: '127.0.0.1',
-            userAgent: 'DevServer'
-        };
-
-        // Uncomment to simulate logged-out locally:
-        // event.locals.user = null;
-        // event.locals.session = null;
-    }
-    else {
-        // ✅ Production auth
-        const sessionResp = await auth.api.getSession({ headers: event.request.headers });
-        event.locals.session = sessionResp?.session ?? null;
-        event.locals.user = sessionResp?.user ?? null;
-    }
+    // ✅ Production auth
+    const sessionResp = await auth.api.getSession({ headers: event.request.headers });
+    event.locals.session = sessionResp?.session ?? null;
+    event.locals.user = sessionResp?.user ?? null;
 
     const isAuthed = Boolean(event.locals.session);
 
