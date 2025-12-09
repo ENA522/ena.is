@@ -2,6 +2,15 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
+# Accept build args from Railway
+ARG DATABASE_URL
+ARG GITHUB_CLIENT_ID
+ARG GITHUB_CLIENT_SECRET
+ARG GOOGLE_CLIENT_ID
+ARG GOOGLE_CLIENT_SECRET
+ARG DISCORD_CLIENT_ID
+ARG DISCORD_CLIENT_SECRET
+
 # Install deps
 COPY package.json package-lock.json* pnpm-lock.yaml* bun.lockb* ./
 RUN if [ -f pnpm-lock.yaml ]; then corepack enable && corepack prepare pnpm@latest --activate && pnpm i --frozen-lockfile; \
