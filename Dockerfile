@@ -16,6 +16,10 @@ RUN npx prisma generate
 
 # Build
 COPY . .
+
+RUN touch .env
+
+
 RUN if [ -f pnpm-lock.yaml ]; then pnpm build; \
     elif [ -f bun.lockb ]; then bun run build; \
     else npm run build; fi
