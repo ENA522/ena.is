@@ -19,9 +19,6 @@ COPY . .
 
 RUN touch .env
 
-# Add NODE_OPTIONS to get better error output
-ENV NODE_OPTIONS="--trace-warnings"
-
 RUN if [ -f pnpm-lock.yaml ]; then \
         pnpm build 2>&1 | tee /tmp/build.log || (cat /tmp/build.log && exit 1); \
     elif [ -f bun.lockb ]; then \

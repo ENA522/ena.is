@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
-import { Pool } from "pg";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { prisma } from "$lib/server/prisma";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
 
@@ -10,22 +11,18 @@ const ORIGINS = [
     "https://www.ena.is",
 ];
 
-// Lazy initialization - only create when actually used
+// Lazy initialization
 let _auth: ReturnType<typeof betterAuth> | null = null;
 
 function createAuth() {
     if (_auth) return _auth;
     
-    const pool = new Pool({
-        connectionString: process.env.DATABASE_URL || "postgresql://build:build@localhost:5432/build",
-        ssl: process.env.NODE_ENV === "production"
-            ? { rejectUnauthorized: false }
-            : false,
-    });
-
     _auth = betterAuth({
         trustedOrigins: ORIGINS,
-        database: pool,
+        
+        database: prismaAdapter(prisma, {
+            provider: 'postgresql'
+        }),
         
         user: {
             additionalFields: {
