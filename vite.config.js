@@ -5,6 +5,12 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	server: {
-            port: 3000 // Change this to your desired development port
-        }
+		port: 3000
+	},
+	ssr: {
+		noExternal: ['better-auth']
+	},
+	optimizeDeps: {
+		exclude: ['better-auth']
+	}
 });
