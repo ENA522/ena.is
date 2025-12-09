@@ -92,16 +92,17 @@ export const POST = withApiLogger(
 
         const encrypted = rows[0].encrypted_key.toString("base64");
 
-        // Convert line breaks in content
-        let processedContent = content;
-        if (content && typeof content === 'string') {
-            processedContent = content.replace(/\\n/g, '\n');
+        // Build payload - only include fields that exist
+        const payload = {};
+
+        // Only add content if it exists and is not empty
+        if (content && typeof content === 'string' && content.trim()) {
+            payload.content = content.replace(/\\n/g, '\n');
         }
 
-        // Convert line breaks in embeds
-        let processedEmbeds = embeds;
-        if (embeds && Array.isArray(embeds)) {
-            processedEmbeds = embeds.map(embed => {
+        // Only add embeds if they exist and array is not empty
+        if (embeds && Array.isArray(embeds) && embeds.length > 0) {
+            payload.embeds = embeds.map(embed => {
                 const processedEmbed = { ...embed };
                 
                 if (embed.description && typeof embed.description === 'string') {
@@ -120,10 +121,6 @@ export const POST = withApiLogger(
                 return processedEmbed;
             });
         }
-
-        const payload = {};
-        if (processedContent !== undefined) payload.content = processedContent;
-        if (processedEmbeds !== undefined) payload.embeds = processedEmbeds;
 
         // Forward to bot API
         const apiUrl = `https://enabot-production.up.railway.app/message/${channelId}/${messageId}/edit`;
