@@ -11,6 +11,8 @@ const ORIGINS = [
     "https://www.ena.is",
 ];
 
+const DEV = process.env.NODE_ENV !== 'production';
+
 // Lazy initialization
 let _auth: ReturnType<typeof betterAuth> | null = null;
 
@@ -18,6 +20,7 @@ function createAuth() {
     if (_auth) return _auth;
     
     _auth = betterAuth({
+        baseURL: DEV ? "http://localhost:3000" : "https://ena.is", // Add this line
         trustedOrigins: ORIGINS,
         
         database: prismaAdapter(prisma, {
@@ -48,17 +51,17 @@ function createAuth() {
             github: {
                 clientId: process.env.GITHUB_CLIENT_ID!,
                 clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-                redirectURI: "https://ena.is/api/auth/callback/github",
+                redirectURI: DEV ? "http://localhost:3000/api/auth/callback/github" : "https://ena.is/api/auth/callback/github",
             },
             google: {
                 clientId: process.env.GOOGLE_CLIENT_ID!,
                 clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-                redirectURI: "https://ena.is/api/auth/callback/google",
+                redirectURI: DEV ? "http://localhost:3000/api/auth/callback/google" : "https://ena.is/api/auth/callback/google",
             },
             discord: {
                 clientId: process.env.DISCORD_CLIENT_ID!,
                 clientSecret: process.env.DISCORD_CLIENT_SECRET!,
-                redirectURI: "https://ena.is/api/auth/callback/discord",
+                redirectURI: DEV ? "http://localhost:3000/api/auth/callback/discord" : "https://ena.is/api/auth/callback/discord",
                 scopes: ["identify", "guilds"],
             },
         },
