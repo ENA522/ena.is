@@ -29,6 +29,15 @@ RUN if [ -f pnpm-lock.yaml ]; then pnpm build; \
     elif [ -f bun.lockb ]; then bun run build; \
     else npm run build; fi
 
+# Set env vars from build args (with fallbacks)
+ENV DATABASE_URL=${DATABASE_URL:-postgresql://build:build@localhost:5432/build}
+ENV GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID:-build-placeholder}
+ENV GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET:-build-placeholder}
+ENV GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-build-placeholder}
+ENV GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-build-placeholder}
+ENV DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID:-build-placeholder}
+ENV DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET:-build-placeholder}
+
 # --- runtime stage ---
 FROM node:20-alpine
 # Nginx + PM2 + curl for healthcheck
