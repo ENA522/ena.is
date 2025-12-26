@@ -1,5 +1,5 @@
-import { sendEmail } from '../email_engine.js';
-import { enaLayout } from '../layout/base_template.js';
+import { sendEmail } from './email_engine.js';
+import { enaLayout } from './layout/base_template.js';
 
 export function sendVerificationEmail({
     to,

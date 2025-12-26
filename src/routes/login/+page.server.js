@@ -24,15 +24,14 @@ export const actions = {
             });
         }
 
-        const result = await auth.api.signInEmail({
-            body: { email, password, rememberMe },
-            cookies
-        });
-
-        // ✅ Correct failure detection
-        if (!result || result.error) {
+        try {
+            await auth.api.signInEmail({
+                body: { email, password, rememberMe },
+                cookies
+            });
+        } catch (err) {
             return fail(401, {
-                error: result?.error?.message || 'Login failed',
+                error: err?.message ?? 'Invalid email or password',
                 values: { email }
             });
         }
