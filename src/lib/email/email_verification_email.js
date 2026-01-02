@@ -16,12 +16,6 @@ export function sendVerificationEmail({
     });
 }
 
-await sendVerificationEmail({
-    to: "sangonkim1998@gmail.com",
-    username: "Moses",
-    code: "143728"
-});
-
 // -------------------------
 
 function verificationTemplate(meta) {
