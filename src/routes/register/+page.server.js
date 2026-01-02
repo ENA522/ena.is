@@ -38,6 +38,7 @@ export const actions = {
             });
         }
 
-        throw redirect(303, redirectTarget ?? '/');
+        // Redirect to email verification page after credential signup
+        throw redirect(303, '/verify-email');
     }
 };
