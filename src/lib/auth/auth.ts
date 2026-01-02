@@ -69,7 +69,7 @@ function createAuth() {
         
         emailAndPassword: {
             enabled: true,
-            requireEmailVerification: true,
+            requireEmailVerification: false,
             minPasswordLength: 8
         },
 
@@ -172,14 +172,6 @@ function createAuth() {
                     const isSignup = age < 3000;
 
                     event = isSignup ? 'oauth-signup' : 'oauth-login';
-
-                    // Ensure OAuth users have verified email (provider already verified)
-                    if (isSignup && !user.emailVerified) {
-                        await prisma.user.update({
-                            where: { id: userId },
-                            data: { emailVerified: true }
-                        });
-                    }
                 }
 
                 // ------------------------------------------------------

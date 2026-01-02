@@ -15,7 +15,7 @@ const PROTECTED_PREFIXES = ['/app', '/settings', '/billing'];
 const ADMIN_PREFIXES = ['/admin'];
 
 /** Public-ish prefixes we should ignore (assets, images, etc.) */
-const ASSET_PREFIXES = ['/assets', '/images', '/icons', '/font', '/_app', '/.well-known'];
+const ASSET_PREFIXES = ['/assets', '/images', '/icons', '/font', '/_app'];
 
 /** Is this pathname under any protected rule? */
 function isProtectedPath(pathname) {
