@@ -86,18 +86,6 @@ export async function handle({ event, resolve }) {
             }
         }
 
-        /* ---------- EMAIL VERIFICATION GUARD ---------- */
-
-        // Redirect unverified users to verification page (except on whitelisted paths)
-        if (isAuthed && !event.locals.user?.emailVerified) {
-            const allowedPaths = ['/verify-email', '/logout', '/api/verify-email/send', '/api/verify-email/verify'];
-            const isAllowedPath = allowedPaths.some(p => path === p || path.startsWith(p + '/'));
-
-            if (!isAllowedPath) {
-                throw redirect(303, '/verify-email');
-            }
-        }
-
         /* ---------- AUTHENTICATED USERS SHOULD NOT HIT LOGIN ---------- */
 
         if (isAuthed && (path === '/login' || path === '/register')) {
