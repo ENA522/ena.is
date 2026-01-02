@@ -63,7 +63,7 @@ function createAuth() {
                 clientId: process.env.DISCORD_CLIENT_ID!,
                 clientSecret: process.env.DISCORD_CLIENT_SECRET!,
                 redirectURI: DEV ? "http://localhost:3000/api/auth/callback/discord" : "https://ena.is/api/auth/callback/discord",
-                scopes: ["identify", "guilds"],
+                scope: ["identify", "guilds"],
             },
         },
         
